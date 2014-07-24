@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg2985"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="phase.svg">
+  <defs
+     id="defs2987">
+    <filter
+       inkscape:collect="always"
+       id="filter3793">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.6592198"
+         id="feGaussianBlur3795" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter4055">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.91541062"
+         id="feGaussianBlur4057" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="7"
+     inkscape:cx="-1.1428571"
+     inkscape:cy="5.7020888"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1855"
+     inkscape:window-height="951"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata2990">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <text
+       xml:space="preserve"
+       style="font-size:48.8724823px;font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter4055);enable-background:accumulate;font-family:Roboto Slab;-inkscape-font-specification:Roboto Slab Bold Italic"
+       x="2.9235556"
+       y="30.841133"
+       id="text2993"
+       sodipodi:linespacing="125%"
+       transform="matrix(1.0989014,0,0,1.1318702,-2.3055,-2.4533268)"><tspan
+         sodipodi:role="line"
+         id="tspan2995"
+         x="2.9235556"
+         y="30.841133"
+         style="font-size:48.8724823px;font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Roboto Slab;-inkscape-font-specification:Roboto Slab Bold Italic">φ</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:54.50571823px;font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Roboto Slab;-inkscape-font-specification:Roboto Slab Bold Italic"
+       x="0.01306934"
+       y="31.249989"
+       id="text2993-4"
+       sodipodi:linespacing="125%"
+       transform="scale(0.98532847,1.01489)"><tspan
+         sodipodi:role="line"
+         id="tspan2995-8"
+         x="0.01306934"
+         y="31.249989"
+         style="font-size:54.50571823px;font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:0px;word-spacing:0px;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Roboto Slab;-inkscape-font-specification:Roboto Slab Bold Italic">φ</tspan></text>
+  </g>
+</svg>

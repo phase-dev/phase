@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Phase
+GenericName=Phase
+Exec=/opt/phase/phase.py %f
+Icon=phase
+Comment=Python HTTP Attack and Scripting Environment
+Terminal=false
+Type=Application
+Categories=Qt;Utility;Security;
+MimeType=application/x-phase;
+X-SuSE-translate=true
+GenericName[en_GB]=Phase
+Comment[en_GB]=Python HTTP Attack and Scripting Environment
+Name[en_GB]=Phase
