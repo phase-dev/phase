@@ -143,13 +143,16 @@ class History(tab.Tab):
 		
 		dialog = Gtk.FileChooserDialog(title="Save "+save_type,action=Gtk.FileChooserAction.SAVE,buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
 		response=dialog.run()
+
  
 		if response == Gtk.ResponseType.OK:
 			model,iter=self.view.get_selection().get_selected()
 			flow=model.get_value(iter,0)
 			save_file=open(dialog.get_filename(),"w")
 			if save_type == "Request":
-				save_file.write(flow.request.to_string())		
+				new_flow=flow.copy()
+				new_flow.request.path=new_flow.request.get_url()
+				save_file.write(new_flow.request.to_string())		
 			else:
 				save_file.write(flow.response.to_string())
 			save_file.close()
