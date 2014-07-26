@@ -1,11 +1,11 @@
 Package: phase
 Version: 0.0.1
 Architecture: all
-Maintainer: Phase Developers <phase@phase.com>
+Maintainer: Phase Developers <phase.dev.team@gmail.com>
 Depends: python-bs4, python-pyasn1, python-ntlm
 Section: utils
 Priority: optional
 Description: Python HTTP Attack and Scripting Proxy
- Phase is a HTTP proxy capable of intercepting and modifying HTTP requests and response.
+ Phase is a HTTP proxy capable of intercepting and modifying HTTP requests and responses.
  Support is included for manual and scripted modification of HTTP sessions as well as 
  request history recording and passive web application vulnerability detection.
