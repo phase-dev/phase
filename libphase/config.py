@@ -128,7 +128,7 @@ class Config():
 			self.load_defaults()
 
 
-		self.proxy.ignored_extensions=utilities.RegexList(["png","PNG","jpg","JPG","jpeg","JPEG","gif","GIF",".js",".css"])
+		self.proxy.ignored_extensions=utilities.RegexList(["png","PNG","jpg","JPG","jpeg","JPEG","gif","GIF",".js",".css",".ico"])
 
 		try:
 			config = ConfigParser.SafeConfigParser()

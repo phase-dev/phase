@@ -187,7 +187,7 @@ class History(tab.Tab):
 	def handler_menuitem_history_resend(self,button):
 		model,iter=self.view.get_selection().get_selected()
 		flow=self.view.get_model().get_value(iter,0)
-		parsed_url=flow.request.get_url()
+		parsed_url=urlparse.urlparse(flow.request.get_url())
 		self.builder.get_object("entryRequestURL").set_text(parsed_url.scheme+"://"+parsed_url.netloc)
 		self.request.textview_request.get_buffer().set_text(flow.request.to_string())
 		self.request.textview_response.get_buffer().clear()
