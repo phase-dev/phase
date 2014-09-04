@@ -18,7 +18,7 @@ along with Phase.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 
-from libphase import gtk
+from libphase import gtk,error
 from libphase.tabs import tab
 from gi.repository import Gtk
 from gi.repository import GtkSource
@@ -32,6 +32,8 @@ from libmproxy.protocol import http
 from libphase import http_client
 
 import threading
+
+from netlib.odict import ODict,ODictCaseless
 
 class Intercept(tab.Tab):
 
@@ -207,10 +209,12 @@ class Intercept(tab.Tab):
 		self.process_response(flow)
 		self.send_next()
 
+	def send_null_response(self,flow):
+		flow.client_conn.send(flow.response._assemble())
+		flow.client_conn.finish()
+		self.send_next()
 
 	def handler_button_send(self,button):
-
-
 		if self.current_response != None:
 			if self.binary_response:
 				altered_http_response=self.current_response.response.from_string(self.textbuffer_intercept_headers.get_all_text()+"\r\n",self.current_response.request.method)
@@ -240,12 +244,26 @@ class Intercept(tab.Tab):
 
 
 	def handler_button_cancel(self,button):
-		if self.current_response:
+		if self.current_response != None:
+			self.current_response.response.code=200
+			self.current_response.response.headers=ODict()
+			self.current_response.response.headers["Cache-Control"]=["no-store,no-cache"]
+			self.current_response.response.headers["Pragma"]=["no-cache"]
+			error_page=error.error_page % (200, "OK", 200, "User Cancelled Response")
+			self.current_response.response.headers["Content-Length"]=[str(len(error_page))]
+			self.current_response.response.content=error_page
 			self.load_response(None)
-			self.current_response.kill(self.proxy)
-			self.send_next()
-		elif self.current_request:
+			send_response_thread=threading.Thread(target=self.send_response,args=(self.current_response,))
+			send_response_thread.start()
+			
+		else:
+			headers=ODictCaseless()
+			headers["Cache-Control"]=["no-store,no-cache"]
+			headers["Pragma"]=["no-cache"]
+			error_page=error.error_page % (200, "OK", 200, "User Cancelled Request")
+			headers["Content-Length"]=[str(len(error_page))]
+			self.current_request.response=http.HTTPResponse((1,1),200,"OK",headers,error_page)
 			self.load_request(None)
-			self.current_request.kill(self.proxy)
-			self.current_request=None
+			send_response_thread=threading.Thread(target=self.send_null_response,args=(self.current_request,))
+			send_response_thread.start()
 
