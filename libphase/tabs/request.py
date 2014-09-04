@@ -58,6 +58,10 @@ class Request(tab.Tab):
 				dialogs.warning("Invalid HTTP Request","Empty HTTP Request")
 				return
 			flow=client.request_from_string(url,request)
+			
+			if self.builder.get_object("checkbuttonRequestContentLength").get_active():
+				flow.request.headers["Content-Length"]=[str(len(flow.request.content))]
+
 			self.textview_response.get_buffer().set_text(flow.response.to_string())
 			
 			if self.builder.get_object("checkbuttonRequestHistory").get_active():

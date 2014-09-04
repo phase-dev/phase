@@ -226,7 +226,7 @@ class Intercept(tab.Tab):
 			send_response_thread.start()
 			
 		else:
-			altered_http_request=self.current_request.request.from_string(self.textbuffer_intercept_headers.get_all_text()+"\r\n"+self.textbuffer_intercept_body.get_all_text())
+			altered_http_request=self.current_request.request.from_string(self.textbuffer_intercept_headers.get_all_text()+"\r\n"+self.textbuffer_intercept_body.get_all_text(),update_content_length=self.shared_objects.builder.get_object("checkbuttonInterceptContentLength").get_active())
 			self.current_request.request.method=altered_http_request.method
 			self.current_request.request.scheme=altered_http_request.scheme
 			self.current_request.request.host=altered_http_request.host

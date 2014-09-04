@@ -85,8 +85,8 @@ class HTTPClient():
 			self.connection.connect()
 
 			if parsed_url.scheme == "https":
-				if config:
-					self.connection.establish_ssl(config.libmproxy_config.clientcerts, None)
+				if self.config:
+					self.connection.establish_ssl(self.config.libmproxy_config.clientcerts, None)
 				else:
 					self.connection.establish_ssl(None, None)
 

@@ -274,62 +274,12 @@ class HTTPRequest(HTTPMessage):
 	return "HTTP/"+major+"."+minor
 
     @classmethod
-    def from_string(cls, string, include_content=True, body_size_limit=None):
+    def from_string(cls, string, include_content=True, body_size_limit=None,update_content_length=False):
 	rfile=StringIO.StringIO(string)
-        """
-        Parse an HTTP request from a file stream
-        """
-        httpversion, host, port, scheme, method, path, headers, content, timestamp_start, timestamp_end \
-            = None, None, None, None, None, None, None, None, None, None
-
-        if hasattr(rfile, "reset_timestamps"):
-            rfile.reset_timestamps()
-
-        request_line = get_line(rfile)
-
-        if hasattr(rfile, "first_byte_timestamp"):
-            timestamp_start = rfile.first_byte_timestamp
-        else:
-            timestamp_start = utils.timestamp()
-
-        request_line_parts = http.parse_init(request_line)
-        if not request_line_parts:
-            raise http.HttpError(400, "Bad HTTP request line: %s" % repr(request_line))
-        method, path, httpversion = request_line_parts
-
-        if path == '*':
-            form_in = "asterisk"
-        elif path.startswith("/"):
-            form_in = "origin"
-            if not netlib.utils.isascii(path):
-                raise http.HttpError(400, "Bad HTTP request line: %s" % repr(request_line))
-        elif method.upper() == 'CONNECT':
-            form_in = "authority"
-            r = http.parse_init_connect(request_line)
-            if not r:
-                raise http.HttpError(400, "Bad HTTP request line: %s" % repr(request_line))
-            host, port, _ = r
-            path = None
-        else:
-            form_in = "absolute"
-            r = http.parse_init_proxy(request_line)
-            if not r:
-                raise http.HttpError(400, "Bad HTTP request line: %s" % repr(request_line))
-            _, scheme, host, port, path, _ = r
-
-        headers = http.read_headers(rfile)
-        if headers is None:
-            raise http.HttpError(400, "Invalid headers")
-
-        if include_content:
-            content = http.read_http_body(rfile, headers, body_size_limit, True)
-            timestamp_end = utils.timestamp()
-
-        return HTTPRequest(form_in, method, scheme, host, port, path, httpversion, headers, content,
-                           timestamp_start, timestamp_end)
+	return HTTPRequest.from_stream(rfile,include_content,body_size_limit,update_content_length)
 
     @classmethod
-    def from_stream(cls, rfile, include_content=True, body_size_limit=None):
+    def from_stream(cls, rfile, include_content=True, body_size_limit=None,update_content_length=False):
         """
         Parse an HTTP request from a file stream
         """
@@ -374,10 +324,19 @@ class HTTPRequest(HTTPMessage):
         headers = http.read_headers(rfile)
         if headers is None:
             raise http.HttpError(400, "Invalid headers")
+	
+        if update_content_length:
+            if "Content-Length" in headers:
+                del headers["Content-Length"]
+            else:
+                update_content_length=False
 
         if include_content:
-            content = http.read_http_body(rfile, headers, body_size_limit, True)
+            content = http.read_http_body(rfile, headers, body_size_limit, not update_content_length)
             timestamp_end = utils.timestamp()
+
+        if update_content_length:
+            headers["Content-Length"]=[str(len(content))]
 
         return HTTPRequest(form_in, method, scheme, host, port, path, httpversion, headers, content,
                            timestamp_start, timestamp_end)
@@ -419,8 +378,12 @@ class HTTPRequest(HTTPMessage):
             headers["Content-Length"] = [str(len(self.content))]
         elif 'Transfer-Encoding' in self.headers:  # content-length for e.g. chuncked transfer-encoding with no content
             headers["Content-Length"] = ["0"]
-
         return str(headers)
+
+
+    def update_content_length(self):
+        self.headers["Content-Length"]=[str(len(self.content))]
+
 
     def _assemble_head(self, form=None):
         return "%s\r\n%s\r\n" % (self._assemble_first_line(form), self._assemble_headers())
@@ -698,29 +661,8 @@ class HTTPResponse(HTTPMessage):
 
     @classmethod
     def from_string(cls, string, request_method, include_content=True, body_size_limit=None):
-        """
-        Parse an HTTP response from a file stream
-        """
 	rfile=StringIO.StringIO(string)
-
-        if not include_content:
-            raise NotImplementedError  # pragma: nocover
-
-        if hasattr(rfile, "reset_timestamps"):
-            rfile.reset_timestamps()
-
-        httpversion, code, msg, headers, content = http.read_response(
-            rfile,
-            request_method,
-            body_size_limit)
-
-        if hasattr(rfile, "first_byte_timestamp"):
-            timestamp_start = rfile.first_byte_timestamp
-        else:
-            timestamp_start = utils.timestamp()
-
-        timestamp_end = utils.timestamp()
-        return HTTPResponse(httpversion, code, msg, headers, content, timestamp_start, timestamp_end)
+	return HTTPResponse.from_stream(rfile,request_method, include_content=True, body_size_limit=None)
 
 
     @classmethod
