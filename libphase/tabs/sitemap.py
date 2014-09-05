@@ -38,9 +38,13 @@ class SiteMap(tab.Tab):
 		
 		self.view=self.builder.get_object("treeviewSiteMap")
 	
-		treeview_sitemap_cell_1 = Gtk.CellRendererText()
-		treeview_sitemap_column_1 = Gtk.TreeViewColumn("Site Map", treeview_sitemap_cell_1, text=0)
+		treeview_sitemap_cell_1 = Gtk.CellRendererPixbuf()
+		treeview_sitemap_column_1 = Gtk.TreeViewColumn("", treeview_sitemap_cell_1)
 		self.view.append_column(treeview_sitemap_column_1)
+		treeview_sitemap_column_1.set_cell_data_func(treeview_sitemap_cell_1,self.data_function)
+		treeview_sitemap_cell_2 = Gtk.CellRendererText()
+		treeview_sitemap_column_2 = Gtk.TreeViewColumn("Site Map", treeview_sitemap_cell_2, text=0)
+		self.view.append_column(treeview_sitemap_column_2)
 		self.store=gtk.TreeStore(str)
 		self.view.set_model(self.store)
 
@@ -125,3 +129,12 @@ class SiteMap(tab.Tab):
 			url=self.store.get_value(parent,0)+"/"+url
 			parent=self.store.iter_parent(parent)
 		return url
+
+
+	def data_function(self,column,cell,model,iter,user_data):
+		if model.iter_n_children(iter) == 0:		
+			cell.set_property('icon-name',"gtk-file")
+		else:
+			cell.set_property('icon-name',"gtk-directory")
+
+		
