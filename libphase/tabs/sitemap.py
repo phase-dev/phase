@@ -132,7 +132,9 @@ class SiteMap(tab.Tab):
 
 
 	def data_function(self,column,cell,model,iter,user_data):
-		if model.iter_n_children(iter) == 0:		
+		if model.iter_parent(iter) == None:
+			cell.set_property('icon-name',"gtk-dnd-multiple")
+		elif model.iter_n_children(iter) == 0:		
 			cell.set_property('icon-name',"gtk-file")
 		else:
 			cell.set_property('icon-name',"gtk-directory")
