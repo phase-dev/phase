@@ -49,7 +49,7 @@ class DialogSpiderView(Gtk.Dialog):
 
 class Spider(Thread):
 
-	def __init__(self,config, url, add_function,progress_function,finished_function):
+	def __init__(self,config, url, add_function,progress_function,finished_function,threads=10):
 		Thread.__init__(self)
 		self.config=config
 		self.url=urlparse(url)
@@ -67,12 +67,14 @@ class Spider(Thread):
 		self.view=DialogSpiderView()
 		self.log=str()
 
+		self.threads=threads
+
 
 	def run(self):
 		
 		while not self.finished:
 			if self.work_queue.qsize() > 0:
-				self.worker=http_client.HTTPMultiClient(self.config,self.response_callback,self.finished_callback)
+				self.worker=http_client.HTTPMultiClient(self.config,self.response_callback,self.finished_callback,threads=self.threads)
 				self.worker.run("GET",self.work_queue)
 			else:
 				self.finished=True
@@ -87,7 +89,7 @@ class Spider(Thread):
 		soup=BeautifulSoup(flow.response.content)
 		
 		for a in soup.find_all('a', href=True):
-			if a["href"] != "#" or a["href"][0:6]!="mailto:":		
+			if a["href"] != "#" and a["href"].startswith("mailto:") == False:		
 				parsed_url=urlparse(a["href"])			
 				if parsed_url.hostname:
 					#absolute URL
@@ -117,3 +119,6 @@ class Spider(Thread):
 						self.log+="IGNORING: "+a["href"]+"\n"
 	def finished_callback(self):
 		pass
+
+	def stop(self):
+		self.worker.stop()
