@@ -1712,11 +1712,18 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkTreeView" id="treeviewProcesses">
+                  <object class="GtkScrolledWindow" id="scrolledwindow17">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selection5"/>
+                    <property name="can_focus">True</property>
+                    <property name="shadow_type">in</property>
+                    <child>
+                      <object class="GtkTreeView" id="treeviewProcesses">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection" id="treeview-selection5"/>
+                        </child>
+                      </object>
                     </child>
                   </object>
                   <packing>

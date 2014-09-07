@@ -83,7 +83,7 @@ class Spider(Thread):
 		self.visited_count+=1
 		GObject.idle_add(self.progress_function,self.iter,self.visited_count,self.visited_count+self.work_queue.qsize())
 		GObject.idle_add(self.view.progress_function,self.visited_count,self.visited_count+self.work_queue.qsize(),self.log)
-		self.log+="GET: "+flow.request.get_url()+"\n"
+		self.log+="GET: "+flow.request.get_url()+" ("+str(flow.response.code)+")\n"
 		soup=BeautifulSoup(flow.response.content)
 		
 		for a in soup.find_all('a', href=True):
@@ -101,19 +101,19 @@ class Spider(Thread):
 						else:
 							self.log+="ALREADY FOUND: "+a["href"]+"\n"
 					else:
-						self.log+="IGNORING:"+a["href"]+"\n"
+						self.log+="IGNORING: "+a["href"]+"\n"
 				else:
 					#relative URL
-					url=urljoin(self.url.geturl(),a["href"])
+					url=urljoin(flow.request.get_url(),a["href"])
 					if not self.config.proxy.ignored_extensions.match(url):						
 						if url not in self.visited_urls:
-							self.log+="FOUND:"+url+"\n"
+							self.log+="FOUND: "+url+"\n"
 							self.visited_urls.append(url)
 							self.work_queue.put(url)
 							GObject.idle_add(self.add_function,url)
 						else:
-							self.log+="ALREADY FOUND:"+url+"\n"
+							self.log+="ALREADY FOUND: "+url+"\n"
 					else:
-						self.log+="IGNORING:"+a["href"]+"\n"
+						self.log+="IGNORING: "+a["href"]+"\n"
 	def finished_callback(self):
 		pass
