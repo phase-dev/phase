@@ -137,28 +137,6 @@ class TreeStore(Gtk.TreeStore):
 	
 
 
-	def __init__(self,*args,**kwargs):
-		super(TreeStore,self).__init__(*args,**kwargs)
-		self.list_store=Gtk.ListStore(*args,**kwargs)
-		self._list_iter_dict={}
-		
-
-	def append(self,parent,row=None):
-		treestore_iter=super(TreeStore, self).append(parent,row)
-
-
-		if parent == None:
-			liststore_iter=self.list_store.append(row)
-			self._list_iter_dict[self.get_string_from_iter(treestore_iter)]=liststore_iter
-
-		return treestore_iter
-
-	def remove(self,iter):
-		self.list_store.remove(self._list_iter_dict[self.get_string_from_iter(iter)])
-		del self._list_iter_dict[self.get_string_from_iter(iter)]
-
-		return super(TreeStore, self).remove(iter)
-
 	def contains(self,parent,pairs):
 		for child in self.get_children(parent):
 			matches_constraints=True
