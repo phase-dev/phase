@@ -108,3 +108,7 @@ class Processes(tab.Tab):
 
 	def finished_function(self,iter):
 		self.store.set_value(iter,1,100)
+
+	def stop(self):
+		for row in self.store:
+			row[2].stop()

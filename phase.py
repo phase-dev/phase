@@ -192,6 +192,7 @@ class PhaseGUI():
 	def exit(self):
 		if self.shared_objects.proxy:
 			self.shared_objects.proxy.stop()
+		self.shared_objects.processes.stop()
 		self.shared_objects.vulnerabilities.stop()
 		Gtk.main_quit()		
 

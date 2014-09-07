@@ -100,16 +100,7 @@ class DialogBruteForceView(Gtk.Dialog):
 	def progress_function(self,current_total,total,log):
 		self.progress_bar.set_fraction(float(current_total)/float(total))
 		self.progress_bar.set_text(str(current_total)+"/"+str(total))
-
-
-		log_view=str()		
-		for key in sorted(log.keys()):
-			log_view+=key+"\n=====================\n"
-			for url in log[key]:
-				log_view+=url.strip()+"\n"
-			log_view+="\n\n"
-
-		self.textview.get_buffer().set_text(log_view)
+		self.textview.get_buffer().set_text(log)
 
 
 class BruteForce(Thread):
@@ -134,7 +125,7 @@ class BruteForce(Thread):
 		self.progress_function=progress_function
 		self.finished_function=finished_function
 
-		self.log={}
+		self._log_dict={}
 		self.view=DialogBruteForceView()
 
 		f=open(wordlist,"r")
@@ -147,6 +138,16 @@ class BruteForce(Thread):
 					self.wordlist_length+=1
 					self.wordlist.append(word)
 		f.close()
+
+	@property
+	def log(self):
+		log_view=str()		
+		for key in sorted(self._log_dict.keys()):
+			log_view+=key+"\n=====================\n"
+			for url in self._log_dict[key]:
+				log_view+=url.strip()+"\n"
+			log_view+="\n\n"
+		return log_view
 
 
 	def run(self):
@@ -172,10 +173,10 @@ class BruteForce(Thread):
 		url=flow.request.get_url()
 
 		if flow.response.code != 404:
-			if str(flow.response.code) in self.log.keys():
-				self.log[str(flow.response.code)].append(url)
+			if str(flow.response.code) in self._log_dict.keys():
+				self._log_dict[str(flow.response.code)].append(url)
 			else:
-				self.log[str(flow.response.code)]=[url]
+				self._log_dict[str(flow.response.code)]=[url]
 
 		if flow.response.code == 200:
 			if self.recursive:
@@ -188,7 +189,7 @@ class BruteForce(Thread):
 			GObject.idle_add(self.view.progress_function,self.current_total,self.total,self.log)
 
 	def finished_callback(self):
-		print self.log
+		pass
 	
 
 	def stop(self):
