@@ -57,11 +57,11 @@ class HTTPView(GtkSource.View):
 			content_type=content_type[0]
 			if "text/html" in content_type:
 				self.get_buffer().set_language(self.lang_manager.get_language('html'))
-			elif "application/javascript" in content_type:
+			elif "application/javascript" in content_type or "application/x-javascript" in content_type or "text/javascript" in content_type:
 				self.get_buffer().set_language(self.lang_manager.get_language('js'))
 			elif "text/css" in content_type:
 				self.get_buffer().set_language(self.lang_manager.get_language('css'))
-			elif "application/json" in content_type:
+			elif "application/json" in content_type :
 				self.get_buffer().set_language(self.lang_manager.get_language('json'))
 			elif "application/soap+xml" in content_type:
 				self.get_buffer().set_language(self.lang_manager.get_language('xml'))
