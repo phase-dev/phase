@@ -70,15 +70,13 @@ class History(tab.Tab):
 
 		self.textbuffer_history_request=gtk.TextBuffer()
 		self.textbuffer_history_response=gtk.TextBuffer()
-		self.textview_history_request=GtkSource.View.new_with_buffer(self.textbuffer_history_request)
-		self.textview_history_response=GtkSource.View.new_with_buffer(self.textbuffer_history_response)
+		self.textview_history_request=gtk.HTTPView(self.textbuffer_history_request)
+		self.textview_history_response=gtk.HTTPView(self.textbuffer_history_response)
 		self.textview_history_request.set_editable(False)
 		self.textview_history_response.set_editable(False)
 		self.builder.get_object("scrolledwindowHistoryRequest").add(self.textview_history_request)	
 		self.builder.get_object("scrolledwindowHistoryResponse").add(self.textview_history_response)
 
-		lang_manager = GtkSource.LanguageManager()
-		self.textbuffer_history_response.set_language(lang_manager.get_language('html'))
 
 		self.builder.get_object("menuitemHistoryOpen").connect("activate",self.handler_menuitem_open_clicked)
 		self.builder.get_object("menuitemHistoryCopy").connect("activate",self.handler_menuitem_copy_clicked)
@@ -126,7 +124,9 @@ class History(tab.Tab):
 		model,iter=self.view.get_selection().get_selected()
 		flow=self.view.get_model().get_value(iter,0)
 		self.textbuffer_history_request.set_text(flow.request.to_string().strip())
-		self.textbuffer_history_response.set_text(flow.response.to_string().strip())		
+		self.textbuffer_history_response.set_text(flow.response.to_string().strip())
+		self.textview_history_request.set_content_type(flow.request.headers["Content-Type"])	
+		self.textview_history_response.set_content_type(flow.response.headers["Content-Type"])	
 
 
 	def handler_menuitem_open_clicked(self,button):

@@ -57,11 +57,8 @@ class Request(tab.Tab):
 			if len(request) == 0:
 				dialogs.warning("Invalid HTTP Request","Empty HTTP Request")
 				return
-			flow=client.request_from_string(url,request)
+			flow=client.request_from_string(url,request,self.builder.get_object("checkbuttonRequestContentLength").get_active())
 			
-			if self.builder.get_object("checkbuttonRequestContentLength").get_active():
-				flow.request.headers["Content-Length"]=[str(len(flow.request.content))]
-
 			self.textview_response.get_buffer().set_text(flow.response.to_string())
 			
 			if self.builder.get_object("checkbuttonRequestHistory").get_active():
@@ -71,3 +68,6 @@ class Request(tab.Tab):
 			dialogs.warning("Invalid HTTP Request",e.msg)
 		except netlib.tcp.NetLibError as e:
 			dialogs.warning("Network Error",e.message)
+
+	def send(url,request,update_content_length):
+		flow=client.request_from_string(url,request,self.builder.get_object("checkbuttonRequestContentLength").get_active())

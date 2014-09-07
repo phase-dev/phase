@@ -67,7 +67,7 @@ class HTTPClient():
 		flow.response.content=flow_2.response.content
 
 
-	def request_from_string(self,url,request):
+	def request_from_string(self,url,request,update_content_length=False):
 
 		parsed_url=urlparse.urlparse(url)
 		if ":" in parsed_url.netloc:
@@ -92,7 +92,7 @@ class HTTPClient():
 
 		try:
 			flow=HTTPFlow(None,self.connection)
-			flow.request=HTTPRequest.from_string(request)
+			flow.request=HTTPRequest.from_string(request,update_content_length=update_content_length)
 			self.connection.send(flow.request._assemble())
 			flow.response = HTTPResponse.from_stream(self.connection.rfile, flow.request.method)
 		except http.HttpErrorConnClosed:
@@ -150,7 +150,6 @@ class HTTPClient():
 		
 
 		return self.request_from_string(url,request)
-
 
 class WorkerThread(Thread):
 

@@ -169,6 +169,7 @@ class Intercept(tab.Tab):
 			self.textbuffer_intercept_body.clear()
 			self.textbuffer_intercept_headers.set_text(flow.request.get_headers())
 			self.textbuffer_intercept_body.set_text(flow.request.content)
+			self.textview_intercept_body.set_content_type(flow.request.headers["Content-Type"])
 			self.builder.get_object("toolbuttonProxySend").set_sensitive(True)
 			self.builder.get_object("toolbuttonProxyCancel").set_sensitive(True)
 			self.builder.get_object("scrolledwindowInterceptHeaders").set_sensitive(True)
@@ -196,6 +197,7 @@ class Intercept(tab.Tab):
 			try:	
 				self.current_response.response.content.decode("utf-8")
 				self.textbuffer_intercept_body.set_text(flow.response.content)
+				self.textview_intercept_body.set_content_type(flow.response.headers["Content-Type"])
 			except UnicodeDecodeError:
 				self.builder.get_object("scrolledwindowInterceptBody").set_sensitive(False)
 				self.textbuffer_intercept_body.set_text("Binary Response")
@@ -204,9 +206,10 @@ class Intercept(tab.Tab):
 
 
 
-	def send_response(self,flow):
+	def send_response(self,flow,process=True):
 		flow.response.reply()
-		self.process_response(flow)
+		if process:
+			self.process_response(flow)
 		self.send_next()
 
 	def send_null_response(self,flow):
@@ -253,10 +256,10 @@ class Intercept(tab.Tab):
 			self.current_response.response.headers["Content-Length"]=[str(len(error_page))]
 			self.current_response.response.content=error_page
 			self.load_response(None)
-			send_response_thread=threading.Thread(target=self.send_response,args=(self.current_response,))
+			send_response_thread=threading.Thread(target=self.send_response,args=(self.current_response,False))
 			send_response_thread.start()
 			
-		else:
+		elif self.current_request != None:
 			headers=ODictCaseless()
 			headers["Cache-Control"]=["no-store,no-cache"]
 			headers["Pragma"]=["no-cache"]

@@ -49,6 +49,26 @@ class HTTPView(GtkSource.View):
 		super(HTTPView,self).__init__()
 		self.set_buffer(text_buffer)
 		self.connect("populate-popup",self.handle_populate_popup)
+		self.lang_manager = GtkSource.LanguageManager()
+		self.get_buffer().set_language(self.lang_manager.get_language('none'))
+
+	def set_content_type(self,content_type):
+		if len(content_type) == 1:
+			content_type=content_type[0]
+			if "text/html" in content_type:
+				self.get_buffer().set_language(self.lang_manager.get_language('html'))
+			elif "application/javascript" in content_type:
+				self.get_buffer().set_language(self.lang_manager.get_language('js'))
+			elif "text/css" in content_type:
+				self.get_buffer().set_language(self.lang_manager.get_language('css'))
+			elif "application/json" in content_type:
+				self.get_buffer().set_language(self.lang_manager.get_language('json'))
+			elif "application/soap+xml" in content_type:
+				self.get_buffer().set_language(self.lang_manager.get_language('xml'))
+			else:
+				self.get_buffer().set_language(self.lang_manager.get_language('none'))
+		else:
+			self.get_buffer().set_language(self.lang_manager.get_language('none'))
 
 	def handle_populate_popup(self,textview,menu):
 		encode=Gtk.MenuItem(label="Encode")
@@ -81,7 +101,7 @@ class HTTPView(GtkSource.View):
 		menu.add(encode)
 		menu.add(decode)
 
-		if len(self.get_buffer().get_selection_bounds()) != 2:
+		if len(self.get_buffer().get_selection_bounds()) != 2 or self.get_sensitive() == False:
 			encode.set_sensitive(False)
 			decode.set_sensitive(False)
 
