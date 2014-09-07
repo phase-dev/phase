@@ -48,21 +48,17 @@ class Intercept(tab.Tab):
 		self.sitemap=shared_objects.sitemap
 		self.vulnerabilities=shared_objects.vulnerabilities
 
-		self.textbuffer_intercept_headers=gtk.TextBuffer()
-		self.textbuffer_intercept_headers.expand=True
-		self.textview_intercept_headers=gtk.HTTPView(self.textbuffer_intercept_headers)
-		self.builder.get_object("scrolledwindowInterceptHeaders").add(self.textview_intercept_headers)	
-		self.builder.get_object("scrolledwindowInterceptHeaders").set_sensitive(False)
+		self.view_intercept_headers=gtk.HTTPView()
+		self.builder.get_object("boxInterceptHeaders").add(self.view_intercept_headers)	
+		self.view_intercept_headers.set_sensitive(False)
 
-		self.textbuffer_intercept_body=gtk.TextBuffer()
-		self.textbuffer_intercept_body.expand=True
-		self.textview_intercept_body=gtk.HTTPView(self.textbuffer_intercept_body)
-		self.builder.get_object("scrolledwindowInterceptBody").add(self.textview_intercept_body)
-		self.builder.get_object("scrolledwindowInterceptBody").set_sensitive(False)
+		self.view_intercept_body=gtk.HTTPView(webkit=True)
+		self.builder.get_object("boxInterceptBody").add(self.view_intercept_body)
+		self.view_intercept_body.set_sensitive(False)
 
 
 		lang_manager = GtkSource.LanguageManager()
-		self.textbuffer_intercept_body.set_language(lang_manager.get_language('html'))
+		self.view_intercept_body.text_buffer.set_language(lang_manager.get_language('html'))
 
 		self.request_intercept_queue=Queue.Queue()	
 		self.response_intercept_queue=Queue.Queue()
@@ -156,51 +152,51 @@ class Intercept(tab.Tab):
 
 	def load_request(self,flow):		
 		if flow == None:
-			self.textbuffer_intercept_headers.clear()
-			self.textbuffer_intercept_body.clear()
+			self.view_intercept_headers.text_buffer.clear()
+			self.view_intercept_body.text_buffer.clear()
 			self.builder.get_object("toolbuttonProxySend").set_sensitive(False)
 			self.builder.get_object("toolbuttonProxyCancel").set_sensitive(False)
-			self.builder.get_object("scrolledwindowInterceptHeaders").set_sensitive(False)
-			self.builder.get_object("scrolledwindowInterceptBody").set_sensitive(False)
+			self.view_intercept_headers.set_sensitive(False)
+			self.view_intercept_body.set_sensitive(False)
 
 		else:
 			self.builder.get_object("notebookMain").set_current_page(0)
-			self.textbuffer_intercept_headers.clear()
-			self.textbuffer_intercept_body.clear()
-			self.textbuffer_intercept_headers.set_text(flow.request.get_headers())
-			self.textbuffer_intercept_body.set_text(flow.request.content)
-			self.textview_intercept_body.set_content_type(flow.request.headers["Content-Type"])
+			self.view_intercept_headers.text_buffer.clear()
+			self.view_intercept_body.text_buffer.clear()
+			self.view_intercept_headers.text_buffer.set_text(flow.request.get_headers())
+			self.view_intercept_body.text_buffer.set_text(flow.request.content)
+			self.view_intercept_body.text_view.set_content_type(flow.request.headers["Content-Type"])
 			self.builder.get_object("toolbuttonProxySend").set_sensitive(True)
 			self.builder.get_object("toolbuttonProxyCancel").set_sensitive(True)
-			self.builder.get_object("scrolledwindowInterceptHeaders").set_sensitive(True)
-			self.builder.get_object("scrolledwindowInterceptBody").set_sensitive(True)
+			self.view_intercept_headers.set_sensitive(True)
+			self.view_intercept_body.set_sensitive(True)
 
 	def load_response(self,flow):
 		if flow == None:
-			self.textbuffer_intercept_headers.clear()
-			self.textbuffer_intercept_body.clear()
+			self.view_intercept_headers.text_buffer.clear()
+			self.view_intercept_body.text_buffer.clear()
 			self.builder.get_object("toolbuttonProxySend").set_sensitive(False)
 			self.builder.get_object("toolbuttonProxyCancel").set_sensitive(False)
-			self.builder.get_object("scrolledwindowInterceptHeaders").set_sensitive(False)
-			self.builder.get_object("scrolledwindowInterceptBody").set_sensitive(False)
+			self.view_intercept_headers.set_sensitive(False)
+			self.view_intercept_body.set_sensitive(False)
 		else:
 			self.builder.get_object("notebookMain").set_current_page(0)
 			self.builder.get_object("toolbuttonProxySend").set_sensitive(True)
 			self.builder.get_object("toolbuttonProxyCancel").set_sensitive(True)
-			self.builder.get_object("scrolledwindowInterceptHeaders").set_sensitive(True)
-			self.builder.get_object("scrolledwindowInterceptBody").set_sensitive(True)
+			self.view_intercept_headers.set_sensitive(True)
+			self.view_intercept_body.set_sensitive(True)
 
-			self.textbuffer_intercept_headers.clear()
-			self.textbuffer_intercept_body.clear()
-			self.textbuffer_intercept_headers.set_text(flow.response.get_headers(remove_transfer_encoding=True))
+			self.view_intercept_headers.text_buffer.clear()
+			self.view_intercept_body.text_buffer.clear()
+			self.view_intercept_headers.text_buffer.set_text(flow.response.get_headers(remove_transfer_encoding=True))
 			self.binary_response=False			
 			try:	
 				self.current_response.response.content.decode("utf-8")
-				self.textbuffer_intercept_body.set_text(flow.response.content)
-				self.textview_intercept_body.set_content_type(flow.response.headers["Content-Type"])
+				self.view_intercept_body.text_buffer.set_text(flow.response.content)
+				self.view_intercept_body.text_view.set_content_type(flow.response.headers["Content-Type"])
 			except UnicodeDecodeError:
 				self.builder.get_object("scrolledwindowInterceptBody").set_sensitive(False)
-				self.textbuffer_intercept_body.set_text("Binary Response")
+				self.view_intercept_body.text_buffer.set_text("Binary Response")
 				self.binary_response=True
 			
 
@@ -220,11 +216,11 @@ class Intercept(tab.Tab):
 	def handler_button_send(self,button):
 		if self.current_response != None:
 			if self.binary_response:
-				altered_http_response=self.current_response.response.from_string(self.textbuffer_intercept_headers.get_all_text()+"\r\n",self.current_response.request.method)
+				altered_http_response=self.current_response.response.from_string(self.view_intercept_headers.text_buffer.get_all_text()+"\r\n",self.current_response.request.method)
 				self.current_response.response.code=altered_http_response.code
 				self.current_response.response.headers=altered_http_response.headers		
 			else:			
-				altered_http_response=self.current_response.response.from_string(self.textbuffer_intercept_headers.get_all_text()+"\r\n"+self.textbuffer_intercept_body.get_all_text(),self.current_response.request.method)
+				altered_http_response=self.current_response.response.from_string(self.view_intercept_headers.text_buffer.get_all_text()+"\r\n"+self.view_intercept_body.text_buffer.get_all_text(),self.current_response.request.method)
 				self.current_response.response.code=altered_http_response.code
 				self.current_response.response.headers=altered_http_response.headers
 				self.current_response.response.content=altered_http_response.content
@@ -233,7 +229,7 @@ class Intercept(tab.Tab):
 			send_response_thread.start()
 			
 		else:
-			altered_http_request=self.current_request.request.from_string(self.textbuffer_intercept_headers.get_all_text()+"\r\n"+self.textbuffer_intercept_body.get_all_text(),update_content_length=self.shared_objects.builder.get_object("checkbuttonInterceptContentLength").get_active())
+			altered_http_request=self.current_request.request.from_string(self.view_intercept_headers.text_buffer.get_all_text()+"\r\n"+self.view_intercept_body.text_buffer.get_all_text(),update_content_length=self.shared_objects.builder.get_object("checkbuttonInterceptContentLength").get_active())
 			self.current_request.request.method=altered_http_request.method
 			self.current_request.request.scheme=altered_http_request.scheme
 			self.current_request.request.host=altered_http_request.host

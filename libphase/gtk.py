@@ -19,6 +19,7 @@ along with Phase.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import Gtk
 from gi.repository import GtkSource
+from gi.repository import WebKit
 
 from libphase import utilities,dialogs
 
@@ -43,10 +44,38 @@ class TextBuffer(GtkSource.Buffer):
 		self.insert(start,text)
 
 
-class HTTPView(GtkSource.View):
+class HTTPView(Gtk.Notebook):
+
+	def __init__(self,webkit=False):
+		super(HTTPView,self).__init__()
+		self.text_buffer=TextBuffer()
+		self.text_view=HTTPTextView(self.text_buffer)
+		text_view_scrolled_window=Gtk.ScrolledWindow(expand=True)
+		text_view_scrolled_window.add(self.text_view)
+		self.text_tab=self.insert_page(text_view_scrolled_window,Gtk.Label("Text"),-1)
+
+		self.set_tab_pos(Gtk.PositionType.BOTTOM)
+
+		if webkit:
+			self.webkit_view=WebKit.WebView(expand=True)
+			self.set_show_tabs(True)
+			webkit_scrolled_window=Gtk.ScrolledWindow(expand=True)
+			webkit_scrolled_window.add(self.webkit_view)
+			self.webkit_tab=self.insert_page(webkit_scrolled_window,Gtk.Label("Rendered"),-1)
+			self.connect("switch-page",self.handler_switch_page)
+		else:
+			self.webkit_tab=-1
+			self.set_show_tabs(False)
+
+
+	def handler_switch_page(self,notebook, page, page_num):
+		if page_num == self.webkit_tab:
+			self.webkit_view.load_html_string(self.text_buffer.get_all_text(),"NULL")
+
+class HTTPTextView(GtkSource.View):
 	
 	def __init__(self,text_buffer):
-		super(HTTPView,self).__init__()
+		super(HTTPTextView,self).__init__(expand=True)
 		self.set_buffer(text_buffer)
 		self.connect("populate-popup",self.handle_populate_popup)
 		self.lang_manager = GtkSource.LanguageManager()
@@ -133,10 +162,12 @@ class HTTPView(GtkSource.View):
 			except:
 				dialogs.warning("Decode Failed", "Unable to decode text")
 
+class ButtonToggleGroup():
+	pass
+
+
 class TreeStore(Gtk.TreeStore):
 	
-
-
 	def contains(self,parent,pairs):
 		for child in self.get_children(parent):
 			matches_constraints=True

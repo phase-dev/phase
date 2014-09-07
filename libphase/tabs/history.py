@@ -68,14 +68,13 @@ class History(tab.Tab):
 		self.view.connect("button-press-event",self.handler_treeview_history_clicked)
 		self.view.connect("cursor-changed",self.handler_treeview_history_cursor_changed)
 
-		self.textbuffer_history_request=gtk.TextBuffer()
-		self.textbuffer_history_response=gtk.TextBuffer()
-		self.textview_history_request=gtk.HTTPView(self.textbuffer_history_request)
-		self.textview_history_response=gtk.HTTPView(self.textbuffer_history_response)
-		self.textview_history_request.set_editable(False)
-		self.textview_history_response.set_editable(False)
-		self.builder.get_object("scrolledwindowHistoryRequest").add(self.textview_history_request)	
-		self.builder.get_object("scrolledwindowHistoryResponse").add(self.textview_history_response)
+
+		self.view_history_request=gtk.HTTPView()
+		self.view_history_response=gtk.HTTPView(webkit=True)
+		self.view_history_request.text_view.set_editable(False)
+		self.view_history_response.text_view.set_editable(False)
+		self.builder.get_object("boxHistoryRequest").add(self.view_history_request)	
+		self.builder.get_object("boxHistoryResponse").add(self.view_history_response)
 
 
 		self.builder.get_object("menuitemHistoryOpen").connect("activate",self.handler_menuitem_open_clicked)
@@ -104,8 +103,8 @@ class History(tab.Tab):
 	def clear(self):
 		self.request_id=0
 		self.store.clear()
-		self.textbuffer_history_request.clear()
-		self.textbuffer_history_response.clear()
+		self.view_history_request.text_buffer.clear()
+		self.view_history_response.text_buffer.clear()
 
 	def add_item(self,flow):
 		if self.builder.get_object("checkbuttonRecordHistory").get_active():
@@ -123,10 +122,10 @@ class History(tab.Tab):
 	def handler_treeview_history_cursor_changed(self,treeview):
 		model,iter=self.view.get_selection().get_selected()
 		flow=self.view.get_model().get_value(iter,0)
-		self.textbuffer_history_request.set_text(flow.request.to_string().strip())
-		self.textbuffer_history_response.set_text(flow.response.to_string().strip())
-		self.textview_history_request.set_content_type(flow.request.headers["Content-Type"])	
-		self.textview_history_response.set_content_type(flow.response.headers["Content-Type"])	
+		self.view_history_request.text_buffer.set_text(flow.request.to_string().strip())
+		self.view_history_response.text_buffer.set_text(flow.response.to_string().strip())
+		self.view_history_request.text_view.set_content_type(flow.request.headers["Content-Type"])	
+		self.view_history_response.text_view.set_content_type(flow.response.headers["Content-Type"])	
 
 
 	def handler_menuitem_open_clicked(self,button):
