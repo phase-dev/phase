@@ -65,6 +65,51 @@ class DialogBruteForce(Gtk.Dialog):
 		box.add(self.recursive)
 		self.show_all()	
 		
+class DialogBruteForceView(Gtk.Dialog):
+	def __init__(self):
+		Gtk.Dialog.__init__(self, "Brute Force Status", None, 0, ())
+		self.ok_button=self.add_button("OK",Gtk.ResponseType.OK)
+		self.ok_button.connect("clicked",self.handler_delete,None)
+
+		box = self.get_content_area()
+
+		self.set_size_request(600,500)
+		vbox=Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+		progress_label=Gtk.Label("Progress:")
+		progress_label.set_alignment(0,0)
+		vbox.add(progress_label)
+		self.progress_bar=Gtk.ProgressBar()
+		self.progress_bar.set_size_request(-1,30)
+		self.progress_bar.set_show_text(True)
+		vbox.add(self.progress_bar)
+		output_label=Gtk.Label("Output:")
+		output_label.set_alignment(0,0)
+		vbox.add(output_label)
+		scrolled_window=Gtk.ScrolledWindow(expand=True)
+		self.textview=Gtk.TextView()
+		self.textview.set_editable(False)
+		scrolled_window.add(self.textview)
+		vbox.add(scrolled_window)
+		box.add(vbox)
+		self.connect("delete-event",self.handler_delete)
+
+	def handler_delete(self,widget,event):
+		self.hide()
+		return True
+
+	def progress_function(self,current_total,total,log):
+		self.progress_bar.set_fraction(float(current_total)/float(total))
+		self.progress_bar.set_text(str(current_total)+"/"+str(total))
+
+
+		log_view=str()		
+		for key in sorted(log.keys()):
+			log_view+=key+"\n=====================\n"
+			for url in log[key]:
+				log_view+=url.strip()+"\n"
+			log_view+="\n\n"
+
+		self.textview.get_buffer().set_text(log_view)
 
 
 class BruteForce(Thread):
@@ -88,6 +133,9 @@ class BruteForce(Thread):
 		self.add_function=add_function
 		self.progress_function=progress_function
 		self.finished_function=finished_function
+
+		self.log={}
+		self.view=DialogBruteForceView()
 
 		f=open(wordlist,"r")
 		for word in f:
@@ -117,10 +165,18 @@ class BruteForce(Thread):
 			except Queue.Empty:
 				self.finished=True
 		GObject.idle_add(self.finished_function,self.iter)
+		GObject.idle_add(self.view.progress_function,self.current_total,self.total,self.log)
 
 
 	def response_callback(self,flow):
 		url=flow.request.get_url()
+
+		if flow.response.code != 404:
+			if str(flow.response.code) in self.log.keys():
+				self.log[str(flow.response.code)].append(url)
+			else:
+				self.log[str(flow.response.code)]=[url]
+
 		if flow.response.code == 200:
 			if self.recursive:
 				self.total+=self.wordlist_length
@@ -129,12 +185,14 @@ class BruteForce(Thread):
 		self.current_total+=1
 		if divmod(self.current_total,100)[1] == 0:
 			GObject.idle_add(self.progress_function,self.iter,self.current_total,self.total)
-
+			GObject.idle_add(self.view.progress_function,self.current_total,self.total,self.log)
 
 	def finished_callback(self):
-		pass
-		
+		print self.log
+	
 
 	def stop(self):
 		self.worker.stop()
 		self.finished=True
+
+

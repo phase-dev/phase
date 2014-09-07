@@ -43,6 +43,7 @@ class Processes(tab.Tab):
 		self.builder.get_object("menuitemSitemapBruteForce").connect("activate",self.handler_brute_force_clicked)
 		self.builder.get_object("menuitemSitemapSpider").connect("activate",self.handler_spider_clicked)
 		self.builder.get_object("menuitemProcessesStop").connect("activate",self.handler_stop_clicked)
+		self.builder.get_object("menuitemProcessesView").connect("activate",self.handler_process_view_clicked)
 		self.view.connect("button-press-event",self.handler_view_clicked)
 
 
@@ -53,10 +54,15 @@ class Processes(tab.Tab):
 				self.builder.get_object("menuProcesses").popup(None, None,None, None, event.button, event.time)
 
 
-	def handler_stop_clicked(self,stop):
+	def handler_stop_clicked(self,button):
 		model,iter=self.view.get_selection().get_selected()		
-		bf=model.get_value(iter,2)
-		bf.stop()
+		process=model.get_value(iter,2)
+		process.stop()
+
+	def handler_process_view_clicked(self,button):
+		model,iter=self.view.get_selection().get_selected()		
+		process=model.get_value(iter,2)
+		process.view.show_all()
 
 	def handler_brute_force_clicked(self,button):
 		

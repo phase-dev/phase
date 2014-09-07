@@ -215,3 +215,7 @@ class HTTPMultiClient(Thread):
 			thread.join()
 
 		self.finished_callback()
+
+	def stop(self):
+		for thread in self.thread_pool:
+			thread.stop()
