@@ -32,17 +32,15 @@ class Request(tab.Tab):
 	def __init__(self,shared_objects):
 		tab.Tab.__init__(self,shared_objects)
 
-		self.textbuffer_request=gtk.TextBuffer()
-		self.textbuffer_response=gtk.TextBuffer()
-		self.textview_request=GtkSource.View.new_with_buffer(self.textbuffer_request)
-		self.textview_response=GtkSource.View.new_with_buffer(self.textbuffer_response)
+		self.view_request=gtk.HTTPView()
+		self.view_response=gtk.HTTPView(webkit=True)
 
-		self.builder.get_object("scrolledwindowRequestRequest").add(self.textview_request)	
-		self.builder.get_object("scrolledwindowRequestResponse").add(self.textview_response)
-		self.textview_response.set_editable(False)
+		self.builder.get_object("scrolledwindowRequestRequest").add(self.view_request)	
+		self.builder.get_object("scrolledwindowRequestResponse").add(self.view_response)
+		self.view_response.set_editable(False)
 
 		lang_manager = GtkSource.LanguageManager()
-		self.textbuffer_response.set_language(lang_manager.get_language('html'))
+		self.view_response.text_buffer.set_language(lang_manager.get_language('html'))
 
 		self.builder.get_object("buttonRequestSend").connect("clicked",self.handler_send_clicked)
 
@@ -53,13 +51,13 @@ class Request(tab.Tab):
 		client=http_client.HTTPClient(self.config)
 
 		try:
-			request=self.textview_request.get_buffer().get_all_text()
+			request=self.view_request.text_buffer.get_all_text()
 			if len(request) == 0:
 				dialogs.warning("Invalid HTTP Request","Empty HTTP Request")
 				return
 			flow=client.request_from_string(url,request,self.builder.get_object("checkbuttonRequestContentLength").get_active())
 			
-			self.textview_response.get_buffer().set_text(flow.response.to_string())
+			self.view_response.set_text(flow.response.to_string(remove_transfer_encoding=True))
 			
 			if self.builder.get_object("checkbuttonRequestHistory").get_active():
 				self.shared_objects.history.add_item(flow)

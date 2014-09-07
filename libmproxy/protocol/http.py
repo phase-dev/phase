@@ -649,8 +649,8 @@ class HTTPResponse(HTTPMessage):
 		del headers["Transfer-Encoding"]
 	return self.http_version()+" "+str(self.code)+" "+str(self.msg)+"\r\n"+str(headers)
 
-    def to_string(self):
-	return self.get_headers().strip()+"\r\n\r\n"+self.content
+    def to_string(self,remove_transfer_encoding=False):
+	return self.get_headers(remove_transfer_encoding).strip()+"\r\n\r\n"+self.content
 
     def http_version(self):
 	major=str(self.httpversion[0])

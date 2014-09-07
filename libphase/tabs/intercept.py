@@ -163,9 +163,9 @@ class Intercept(tab.Tab):
 			self.builder.get_object("notebookMain").set_current_page(0)
 			self.view_intercept_headers.text_buffer.clear()
 			self.view_intercept_body.text_buffer.clear()
-			self.view_intercept_headers.text_buffer.set_text(flow.request.get_headers())
-			self.view_intercept_body.text_buffer.set_text(flow.request.content)
-			self.view_intercept_body.text_view.set_content_type(flow.request.headers["Content-Type"])
+			self.view_intercept_headers.set_text(flow.request.get_headers())
+			self.view_intercept_body.set_text(flow.request.content)
+			self.view_intercept_body.set_content_type(flow.request.headers["Content-Type"])
 			self.builder.get_object("toolbuttonProxySend").set_sensitive(True)
 			self.builder.get_object("toolbuttonProxyCancel").set_sensitive(True)
 			self.view_intercept_headers.set_sensitive(True)
@@ -188,16 +188,11 @@ class Intercept(tab.Tab):
 
 			self.view_intercept_headers.text_buffer.clear()
 			self.view_intercept_body.text_buffer.clear()
-			self.view_intercept_headers.text_buffer.set_text(flow.response.get_headers(remove_transfer_encoding=True))
-			self.binary_response=False			
-			try:	
-				self.current_response.response.content.decode("utf-8")
-				self.view_intercept_body.text_buffer.set_text(flow.response.content)
-				self.view_intercept_body.text_view.set_content_type(flow.response.headers["Content-Type"])
-			except UnicodeDecodeError:
-				self.builder.get_object("scrolledwindowInterceptBody").set_sensitive(False)
-				self.view_intercept_body.text_buffer.set_text("Binary Response")
-				self.binary_response=True
+			self.view_intercept_headers.set_text(flow.response.get_headers(remove_transfer_encoding=True))
+
+			self.view_intercept_body.set_text(flow.response.content)
+			self.view_intercept_body.set_content_type(flow.response.headers["Content-Type"])
+
 			
 
 
@@ -215,7 +210,7 @@ class Intercept(tab.Tab):
 
 	def handler_button_send(self,button):
 		if self.current_response != None:
-			if self.binary_response:
+			if self.view_intercept_body.binary:
 				altered_http_response=self.current_response.response.from_string(self.view_intercept_headers.text_buffer.get_all_text()+"\r\n",self.current_response.request.method)
 				self.current_response.response.code=altered_http_response.code
 				self.current_response.response.headers=altered_http_response.headers		

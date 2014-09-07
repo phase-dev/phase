@@ -122,10 +122,10 @@ class History(tab.Tab):
 	def handler_treeview_history_cursor_changed(self,treeview):
 		model,iter=self.view.get_selection().get_selected()
 		flow=self.view.get_model().get_value(iter,0)
-		self.view_history_request.text_buffer.set_text(flow.request.to_string().strip())
-		self.view_history_response.text_buffer.set_text(flow.response.to_string().strip())
-		self.view_history_request.text_view.set_content_type(flow.request.headers["Content-Type"])	
-		self.view_history_response.text_view.set_content_type(flow.response.headers["Content-Type"])	
+		self.view_history_request.set_text(flow.request.to_string().strip())
+		self.view_history_response.set_text(flow.response.to_string().strip())
+		self.view_history_request.set_content_type(flow.request.headers["Content-Type"])	
+		self.view_history_response.set_content_type(flow.response.headers["Content-Type"])	
 
 
 	def handler_menuitem_open_clicked(self,button):
@@ -188,6 +188,6 @@ class History(tab.Tab):
 		flow=self.view.get_model().get_value(iter,0)
 		parsed_url=urlparse.urlparse(flow.request.get_url())
 		self.builder.get_object("entryRequestURL").set_text(parsed_url.scheme+"://"+parsed_url.netloc)
-		self.request.textview_request.get_buffer().set_text(flow.request.to_string())
-		self.request.textview_response.get_buffer().clear()
+		self.request.view_request.set_text(flow.request.to_string())
+		self.request.view_response.text_buffer.clear()
 		self.builder.get_object("notebookMain").set_current_page(4)

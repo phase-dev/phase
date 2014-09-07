@@ -22,6 +22,8 @@ from gi.repository import GtkSource
 from gi.repository import WebKit
 
 from libphase import utilities,dialogs
+from libmproxy.protocol import http
+import netlib
 
 from base64 import b64encode,b64decode
 from urllib import quote_plus, unquote
@@ -67,10 +69,52 @@ class HTTPView(Gtk.Notebook):
 			self.webkit_tab=-1
 			self.set_show_tabs(False)
 
+		self.binary=False
+		self.lang_manager = GtkSource.LanguageManager()
+		self.text_buffer.set_language(self.lang_manager.get_language('none'))
+
 
 	def handler_switch_page(self,notebook, page, page_num):
 		if page_num == self.webkit_tab:
-			self.webkit_view.load_html_string(self.text_buffer.get_all_text(),"NULL")
+			try:
+				response=http.HTTPResponse.from_string(self.text_buffer.get_all_text(),"GET")
+				self.webkit_view.load_html_string(response.content,"NULL")
+			except netlib.http.HttpError:
+				self.webkit_view.load_html_string(self.text_buffer.get_all_text(),"NULL")
+
+
+	def set_text(self,text):
+		self.binary=False			
+		try:	
+			self.set_sensitive(True)
+			text.decode("utf-8")
+			self.text_buffer.set_text(text)
+		except UnicodeDecodeError:
+			self.set_sensitive(False)
+			self.text_buffer.set_text("Binary Response")
+			self.binary=True
+		self.set_current_page(self.text_tab)
+
+	def set_content_type(self,content_type):
+		if len(content_type) == 1:
+			content_type=content_type[0]
+			if "text/html" in content_type:
+				self.text_buffer.set_language(self.lang_manager.get_language('html'))
+			elif "application/javascript" in content_type or "application/x-javascript" in content_type or "text/javascript" in content_type:
+				self.text_buffer.set_language(self.lang_manager.get_language('js'))
+			elif "text/css" in content_type:
+				self.text_buffer.set_language(self.lang_manager.get_language('css'))
+			elif "application/json" in content_type :
+				self.text_buffer.set_language(self.lang_manager.get_language('json'))
+			elif "application/soap+xml" in content_type:
+				self.text_buffer.set_language(self.lang_manager.get_language('xml'))
+			else:
+				self.text_buffer.set_language(self.lang_manager.get_language('none'))
+		else:
+			self.text_buffer.set_language(self.lang_manager.get_language('none'))
+
+	def set_editable(self,editable):
+		self.text_view.set_editable(editable)
 
 class HTTPTextView(GtkSource.View):
 	
@@ -78,26 +122,9 @@ class HTTPTextView(GtkSource.View):
 		super(HTTPTextView,self).__init__(expand=True)
 		self.set_buffer(text_buffer)
 		self.connect("populate-popup",self.handle_populate_popup)
-		self.lang_manager = GtkSource.LanguageManager()
-		self.get_buffer().set_language(self.lang_manager.get_language('none'))
 
-	def set_content_type(self,content_type):
-		if len(content_type) == 1:
-			content_type=content_type[0]
-			if "text/html" in content_type:
-				self.get_buffer().set_language(self.lang_manager.get_language('html'))
-			elif "application/javascript" in content_type or "application/x-javascript" in content_type or "text/javascript" in content_type:
-				self.get_buffer().set_language(self.lang_manager.get_language('js'))
-			elif "text/css" in content_type:
-				self.get_buffer().set_language(self.lang_manager.get_language('css'))
-			elif "application/json" in content_type :
-				self.get_buffer().set_language(self.lang_manager.get_language('json'))
-			elif "application/soap+xml" in content_type:
-				self.get_buffer().set_language(self.lang_manager.get_language('xml'))
-			else:
-				self.get_buffer().set_language(self.lang_manager.get_language('none'))
-		else:
-			self.get_buffer().set_language(self.lang_manager.get_language('none'))
+
+
 
 	def handle_populate_popup(self,textview,menu):
 		encode=Gtk.MenuItem(label="Encode")
@@ -161,9 +188,6 @@ class HTTPTextView(GtkSource.View):
 					self.get_buffer().replace(iter1,iter2,unquote(text))
 			except:
 				dialogs.warning("Decode Failed", "Unable to decode text")
-
-class ButtonToggleGroup():
-	pass
 
 
 class TreeStore(Gtk.TreeStore):
